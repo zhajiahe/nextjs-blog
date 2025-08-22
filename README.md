@@ -1,4 +1,16 @@
 ![tailwind-nextjs-banner](/public/static/images/twitter-card.png)
+# TODO
+我希望修改这个项目，
+
+增加注册登录系统，默认有一个作者，其他注册的都是读者，可以评论查看，但是无法编辑/新增博客
+
+使用supabase实现上述功能，改为动态博客系统，数据存在数据库里面，而不是静态的编辑
+
+实现在线编辑博客的页面，作者可以进去，可以新增/修改博客内容
+
+增加网站分析
+
+你是一名产品经理，写一份完整的提示词，提供给代码智能体进行开发
 
 # Tailwind Nextjs Starter Blog
 
