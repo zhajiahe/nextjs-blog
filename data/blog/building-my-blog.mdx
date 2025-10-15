@@ -1,0 +1,72 @@
+---
+title: '从模板到个人博客：我的建站之旅'
+date: '2025-10-15'
+tags: ['博客', 'Next.js']
+draft: false
+summary: '记录我使用 Tailwind Next.js 博客模板构建个人博客的完整过程，包括项目分析、README 优化、个性化配置等步骤。'
+---
+
+## 🎯 选择博客模板
+
+最近我决定搭建一个个人博客，用来记录技术学习和生活感悟。在调研了多个静态站点生成器后，我选择了这个基于 **Next.js + Tailwind CSS** 的现代化博客模板。
+
+这个模板的优势在于：
+
+- ⚡ 基于 Next.js 14，性能优异
+- 🎨 使用 Tailwind CSS，样式定制灵活
+- 📝 支持 MDX，可在 Markdown 中使用 React 组件
+- 🌙 内置深色/浅色主题切换
+- 🚀 一键部署到 Vercel
+
+## 📥 克隆和初始设置
+
+1. fork 官网模板()
+
+2. 克隆到本地
+
+3. readme中文化 && 个人站点内容修改
+
+3. 在vercel部署这个项目
+
+## 🔍 项目结构分析
+
+项目采用现代化的技术栈：
+
+```
+data/                    # 内容和配置数据
+├── siteMetadata.js     # 站点基本信息配置
+├── authors/            # 作者信息
+├── blog/               # 博客文章存放目录
+└── headerNavLinks.js   # 导航菜单配置
+
+app/                     # Next.js App Router
+├── layout.tsx          # 根布局
+├── page.tsx            # 首页
+└── blog/               # 博客相关页面
+
+components/             # React 组件
+layouts/                # 页面布局模板
+public/                 # 静态资源
+```
+
+## 📊 添加博客文章
+
+按照模板的约定，博客文章放在 `data/blog/` 目录下，使用 `.mdx` 或 `.md` 格式。
+
+每篇文章需要 frontmatter：
+```yaml
+---
+title: '文章标题'
+date: '2024-01-01'
+tags: ['标签1', '标签2']
+summary: '文章摘要'
+draft: false
+---
+```
+
+## 🔄 写作工作流
+
+1. **内容创作**：在 `data/blog/` 下创建文章
+2. **实时预览**：修改立即在浏览器中可见
+3. **提交代码**：`git add .` 和 `git commit`
+4. **部署更新**：由于已经在vercel部署，提交后会自动更新无需手动
