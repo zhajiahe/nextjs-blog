@@ -7,20 +7,11 @@ interface Project {
 
 const projectsData: Project[] = [
   {
-    title: 'A Search Engine',
-    description: `What if you could look up any information in the world? Webpages, images, videos
-    and more. Google has many features to help you find exactly what you're looking
-    for.`,
+    title: '宝宝成长记录网站',
+    description: `一个记录宝宝成长过程的网站，包括宝宝的照片、成长记录、日记里程碑等。
+    使用Cursor Vibe Coding完成，支持本地部署和Vercel部署（需要有域名）`,
     imgSrc: '/static/images/google.png',
-    href: 'https://www.google.com',
-  },
-  {
-    title: 'The Time Machine',
-    description: `Imagine being able to travel back in time or to the future. Simple turn the knob
-    to the desired date and press "Go". No more worrying about lost keys or
-    forgotten headphones with this simple yet affordable solution.`,
-    imgSrc: '/static/images/time-machine.jpg',
-    href: '/blog/the-time-machine',
+    href: 'https://github.com/zhajiahe/my-baby',
   },
 ]
 
