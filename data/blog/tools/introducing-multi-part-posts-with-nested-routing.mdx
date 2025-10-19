@@ -1,0 +1,137 @@
+---
+title: '后台任务工具'
+date: '2025-10-19'
+tags: ['tools']
+draft: false
+summary: '分享后台任务管理工具pm2和使用经验'
+---
+
+> 在实际部署智能体后端或者前端的时候发现程序经常挂掉，也找不到任何日志，调研发现在前端领域非常常用的任务管理工具pm2，而且可以用在任何开发语言(python)
+
+## 简介
+
+PM2 是一个强大的 Node.js 进程管理器，提供进程守护、负载均衡、日志管理等功能，是生产环境部署的首选工具。
+
+## 安装
+
+```bash
+npm install pm2 -g
+```
+
+## 基础命令
+
+```bash
+# 启动应用
+pm2 start app.js --name "my-app"
+
+# 查看列表
+pm2 list
+
+# 查看日志
+pm2 logs
+
+# 重启/停止/删除
+pm2 restart my-app
+pm2 stop my-app
+pm2 delete my-app
+
+# 监控面板
+pm2 monit
+```
+
+## 配置文件
+
+创建 `ecosystem.config.js`：
+
+```javascript
+module.exports = {
+  apps: [{
+    name: 'web-app',
+    script: './server.js',
+    instances: 'max',
+    exec_mode: 'cluster',
+    env_production: {
+      NODE_ENV: 'production',
+      PORT: 8080
+    },
+    max_memory_restart: '1G',
+    error_file: './logs/err.log',
+    out_file: './logs/out.log'
+  }]
+};
+```
+
+使用配置文件：
+
+```bash
+pm2 start ecosystem.config.js --env production
+```
+
+## 集群模式
+
+```bash
+# 启动多个实例
+pm2 start app.js -i max
+
+# 零停机重载
+pm2 reload app-name
+```
+
+## 开机自启
+
+```bash
+pm2 startup
+pm2 save
+```
+
+## 实用技巧
+
+### 日志轮转
+
+```bash
+pm2 install pm2-logrotate
+pm2 set pm2-logrotate:max_size 10M
+```
+
+### 定时重启
+
+```bash
+pm2 start app.js --cron-restart="0 2 * * *"
+```
+
+### 内存限制
+
+```bash
+pm2 start app.js --max-memory-restart 300M
+```
+
+## 常见问题
+
+**应用频繁重启？**
+```bash
+# 查看错误日志
+pm2 logs app-name --err
+```
+
+**更新 PM2**
+```bash
+npm install pm2@latest -g
+pm2 update
+```
+
+## 最佳实践
+
+1. 使用配置文件管理应用
+2. 生产环境启用集群模式
+3. 设置内存限制防止泄漏
+4. 配置日志轮转
+5. 设置开机自启
+
+## 总结
+
+PM2 提供了完整的进程管理解决方案，通过简单的命令即可实现应用的守护、监控和管理。配合配置文件和集群模式，能够轻松应对生产环境的各种需求。
+
+## 参考
+
+- [PM2 官方文档](https://pm2.keymetrics.io/)
+- [GitHub 仓库](https://github.com/Unitech/pm2)
