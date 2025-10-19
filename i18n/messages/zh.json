@@ -1,0 +1,44 @@
+{
+  "nav": {
+    "home": "首页",
+    "blog": "博客",
+    "tags": "标签",
+    "projects": "项目",
+    "about": "关于",
+    "toggleMenu": "切换菜单"
+  },
+  "common": {
+    "latest": "最新文章",
+    "allPosts": "所有文章",
+    "noPostsFound": "暂无文章",
+    "readMore": "阅读更多",
+    "publishedOn": "发布于",
+    "viewPostsTagged": "查看标签为 {tag} 的文章",
+    "readMoreAbout": "阅读更多: \"{title}\""
+  },
+  "pagination": {
+    "previous": "上一页",
+    "next": "下一页",
+    "pageOf": "{current} / {total}"
+  },
+  "notFound": {
+    "title": "404",
+    "description": "抱歉，我们找不到这个页面。",
+    "hint": "不过别担心，你可以在我们的主页找到很多其他内容。",
+    "backToHome": "返回首页"
+  },
+  "footer": {
+    "theme": "Tailwind Nextjs 主题"
+  },
+  "metadata": {
+    "title": "Hazhang 的博客",
+    "description": "使用 Next.js 和 Tailwind.css 创建的个人技术博客",
+    "allPosts": "所有文章",
+    "blog": "博客",
+    "about": "关于",
+    "projects": "项目",
+    "tags": "标签"
+  },
+  "siteTitle": "Hazhang 的博客",
+  "siteDescription": "分享技术、记录成长，使用 Next.js 和 Tailwind.css 构建的现代化个人博客"
+}

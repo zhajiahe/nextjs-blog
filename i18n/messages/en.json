@@ -1,0 +1,44 @@
+{
+  "nav": {
+    "home": "Home",
+    "blog": "Blog",
+    "tags": "Tags",
+    "projects": "Projects",
+    "about": "About",
+    "toggleMenu": "Toggle Menu"
+  },
+  "common": {
+    "latest": "Latest",
+    "allPosts": "All Posts",
+    "noPostsFound": "No posts found.",
+    "readMore": "Read more",
+    "publishedOn": "Published on",
+    "viewPostsTagged": "View posts tagged {tag}",
+    "readMoreAbout": "Read more: '{title}'"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "{current} of {total}"
+  },
+  "notFound": {
+    "title": "404",
+    "description": "Sorry we couldn't find this page.",
+    "hint": "But dont worry, you can find plenty of other things on our homepage.",
+    "backToHome": "Back to homepage"
+  },
+  "footer": {
+    "theme": "Tailwind Nextjs Theme"
+  },
+  "metadata": {
+    "title": "Hazhang's Blog",
+    "description": "A personal tech blog built with Next.js and Tailwind.css",
+    "allPosts": "All Posts",
+    "blog": "Blog",
+    "about": "About",
+    "projects": "Projects",
+    "tags": "Tags"
+  },
+  "siteTitle": "Hazhang's Blog",
+  "siteDescription": "Sharing technology and documenting growth. A modern personal blog built with Next.js and Tailwind.css"
+}

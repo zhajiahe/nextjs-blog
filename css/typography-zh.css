@@ -1,0 +1,68 @@
+/* Chinese Typography Optimization */
+
+/* Chinese Font Stack - prioritize Chinese-friendly fonts */
+:root[lang='zh'] {
+  --font-sans-zh:
+    'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
+    sans-serif;
+}
+
+/* Apply Chinese fonts when locale is zh */
+html[lang='zh'] body {
+  font-family: var(--font-sans-zh);
+}
+
+/* Optimize line height and letter spacing for Chinese */
+html[lang='zh'] {
+  line-height: 1.8;
+}
+
+html[lang='zh'] p {
+  line-height: 1.8;
+}
+
+html[lang='zh'] h1,
+html[lang='zh'] h2,
+html[lang='zh'] h3,
+html[lang='zh'] h4,
+html[lang='zh'] h5,
+html[lang='zh'] h6 {
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+/* Better text rendering for Chinese characters */
+html[lang='zh'] {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Optimize word break for mixed Chinese and English */
+html[lang='zh'] p,
+html[lang='zh'] article,
+html[lang='zh'] .prose {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Chinese quotation marks */
+html[lang='zh'] q {
+  quotes: '"' '"' '' ' ' '';
+}
+
+/* Proper spacing between Chinese and English/numbers */
+html[lang='zh'] .prose {
+  text-spacing: ideograph-numeric ideograph-alpha;
+}
+
+/* Improve readability for Chinese text */
+html[lang='zh'] .prose {
+  font-size: 1.05rem;
+}
+
+@media (max-width: 640px) {
+  html[lang='zh'] .prose {
+    font-size: 1rem;
+  }
+}

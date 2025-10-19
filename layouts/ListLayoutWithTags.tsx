@@ -1,13 +1,13 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
+import { useTranslations, useLocale } from 'next-intl'
 import { slug } from 'github-slugger'
-import { formatDate } from 'pliny/utils/formatDate'
+import { formatDate } from '@/lib/formatDate'
 import { CoreContent } from 'pliny/utils/contentlayer'
 import type { Blog } from 'contentlayer/generated'
 import Link from '@/components/Link'
 import Tag from '@/components/Tag'
-import siteMetadata from '@/data/siteMetadata'
 import tagData from 'app/tag-data.json'
 
 interface PaginationProps {
@@ -22,6 +22,7 @@ interface ListLayoutProps {
 }
 
 function Pagination({ totalPages, currentPage }: PaginationProps) {
+  const t = useTranslations('pagination')
   const pathname = usePathname()
   const segments = pathname.split('/')
   const lastSegment = segments[segments.length - 1]
@@ -37,7 +38,7 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
       <nav className="flex justify-between">
         {!prevPage && (
           <button className="cursor-auto disabled:opacity-50" disabled={!prevPage}>
-            Previous
+            {t('previous')}
           </button>
         )}
         {prevPage && (
@@ -45,20 +46,18 @@ function Pagination({ totalPages, currentPage }: PaginationProps) {
             href={currentPage - 1 === 1 ? `/${basePath}/` : `/${basePath}/page/${currentPage - 1}`}
             rel="prev"
           >
-            Previous
+            {t('previous')}
           </Link>
         )}
-        <span>
-          {currentPage} of {totalPages}
-        </span>
+        <span>{t('pageOf', { current: currentPage, total: totalPages })}</span>
         {!nextPage && (
           <button className="cursor-auto disabled:opacity-50" disabled={!nextPage}>
-            Next
+            {t('next')}
           </button>
         )}
         {nextPage && (
           <Link href={`/${basePath}/page/${currentPage + 1}`} rel="next">
-            Next
+            {t('next')}
           </Link>
         )}
       </nav>
@@ -72,6 +71,8 @@ export default function ListLayoutWithTags({
   initialDisplayPosts = [],
   pagination,
 }: ListLayoutProps) {
+  const t = useTranslations('common')
+  const locale = useLocale()
   const pathname = usePathname()
   const tagCounts = tagData as Record<string, number>
   const tagKeys = Object.keys(tagCounts)
@@ -91,13 +92,13 @@ export default function ListLayoutWithTags({
           <div className="hidden h-full max-h-screen max-w-[280px] min-w-[280px] flex-wrap overflow-auto rounded-sm bg-gray-50 pt-5 shadow-md sm:flex dark:bg-gray-900/70 dark:shadow-gray-800/40">
             <div className="px-6 py-4">
               {pathname.startsWith('/blog') ? (
-                <h3 className="text-primary-500 font-bold uppercase">All Posts</h3>
+                <h3 className="text-primary-500 font-bold uppercase">{t('allPosts')}</h3>
               ) : (
                 <Link
                   href={`/blog`}
                   className="hover:text-primary-500 dark:hover:text-primary-500 font-bold text-gray-700 uppercase dark:text-gray-300"
                 >
-                  All Posts
+                  {t('allPosts')}
                 </Link>
               )}
               <ul>
@@ -114,7 +115,7 @@ export default function ListLayoutWithTags({
                         <Link
                           href={`/tags/${slug(t)}`}
                           className="hover:text-primary-500 dark:hover:text-primary-500 px-3 py-2 text-sm font-medium text-gray-500 uppercase dark:text-gray-300"
-                          aria-label={`View posts tagged ${t}`}
+                          aria-label={`${t} (${tagCounts[t]})`}
                         >
                           {`${t} (${tagCounts[t]})`}
                         </Link>
@@ -133,10 +134,10 @@ export default function ListLayoutWithTags({
                   <li key={path} className="py-5">
                     <article className="flex flex-col space-y-2 xl:space-y-0">
                       <dl>
-                        <dt className="sr-only">Published on</dt>
+                        <dt className="sr-only">{t('publishedOn')}</dt>
                         <dd className="text-base leading-6 font-medium text-gray-500 dark:text-gray-400">
                           <time dateTime={date} suppressHydrationWarning>
-                            {formatDate(date, siteMetadata.locale)}
+                            {formatDate(date, locale)}
                           </time>
                         </dd>
                       </dl>
