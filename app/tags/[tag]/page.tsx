@@ -13,7 +13,9 @@ export async function generateMetadata(props: {
   params: Promise<{ tag: string }>
 }): Promise<Metadata> {
   const params = await props.params
-  const tag = decodeURI(params.tag)
+  // Next.js automatically decodes URL parameters, so params.tag is already decoded
+  // But we still use decodeURI for safety in case it's still encoded
+  const tag = params.tag.includes('%') ? decodeURI(params.tag) : params.tag
   return genPageMetadata({
     title: tag,
     description: `${siteMetadata.title} ${tag} tagged content`,
@@ -29,15 +31,19 @@ export async function generateMetadata(props: {
 export const generateStaticParams = async () => {
   const tagCounts = tagData as Record<string, number>
   const tagKeys = Object.keys(tagCounts)
+  // Don't encode the tag here - Next.js will handle URL encoding automatically
   return tagKeys.map((tag) => ({
-    tag: encodeURI(tag),
+    tag: tag,
   }))
 }
 
 export default async function TagPage(props: { params: Promise<{ tag: string }> }) {
   const params = await props.params
-  const tag = decodeURI(params.tag)
-  const title = tag[0].toUpperCase() + tag.split(' ').join('-').slice(1)
+  // Next.js automatically decodes URL parameters, so params.tag is already decoded
+  // But we still use decodeURI for safety in case it's still encoded
+  const tag = params.tag.includes('%') ? decodeURI(params.tag) : params.tag
+  // Capitalize first letter, keep the rest as is for better Chinese character support
+  const title = tag.charAt(0).toUpperCase() + tag.slice(1)
   // Use slug() on the tag parameter to match how tags are stored and compared
   const slugifiedTag = slug(tag)
   const filteredPosts = allCoreContent(

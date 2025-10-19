@@ -12,8 +12,9 @@ export const generateStaticParams = async () => {
   return Object.keys(tagCounts).flatMap((tag) => {
     const postCount = tagCounts[tag]
     const totalPages = Math.max(1, Math.ceil(postCount / POSTS_PER_PAGE))
+    // Don't encode the tag here - Next.js will handle URL encoding automatically
     return Array.from({ length: totalPages }, (_, i) => ({
-      tag: encodeURI(tag),
+      tag: tag,
       page: (i + 1).toString(),
     }))
   })
@@ -21,8 +22,11 @@ export const generateStaticParams = async () => {
 
 export default async function TagPage(props: { params: Promise<{ tag: string; page: string }> }) {
   const params = await props.params
-  const tag = decodeURI(params.tag)
-  const title = tag[0].toUpperCase() + tag.split(' ').join('-').slice(1)
+  // Next.js automatically decodes URL parameters, so params.tag is already decoded
+  // But we still use decodeURI for safety in case it's still encoded
+  const tag = params.tag.includes('%') ? decodeURI(params.tag) : params.tag
+  // Capitalize first letter, keep the rest as is for better Chinese character support
+  const title = tag.charAt(0).toUpperCase() + tag.slice(1)
   const pageNumber = parseInt(params.page)
   // Use slug() on the tag parameter to match how tags are stored and compared
   const slugifiedTag = slug(tag)
