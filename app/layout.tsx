@@ -59,12 +59,20 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: Promise<{ locale?: string }>
+}) {
   const basePath = process.env.BASE_PATH || ''
+  const { locale } = await params
+  const htmlLang = locale || siteMetadata.language
 
   return (
     <html
-      lang={siteMetadata.language}
+      lang={htmlLang}
       className={`${space_grotesk.variable} scroll-smooth`}
       suppressHydrationWarning
     >
