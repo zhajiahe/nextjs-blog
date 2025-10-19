@@ -1,0 +1,361 @@
+---
+title: 'fastapi开发工具(1)'
+date: '2025-10-19'
+tags: ['tools', 'fastapi']
+draft: false
+summary: '介绍 FastAPI 开发中三个实用工具：SQLAdmin 用于快速构建管理后台，AuthX 提供完整的认证授权方案，Scalar 生成美观的 API 文档'
+---
+
+> 记录fastapi开发过程中使用的几个方便的工具(sqladmin、authx、scalar)
+
+## sqladmin
+
+### 一句话描述
+
+**SQLAdmin** 是一个为 FastAPI 和 Starlette 应用提供的灵活管理界面框架，可以快速为 SQLAlchemy 模型生成功能完整的管理后台，类似 Django Admin。
+
+### 基本使用
+
+#### 1. 安装
+
+```bash
+pip install sqladmin
+```
+
+#### 2. 快速开始
+
+```python
+from fastapi import FastAPI
+from sqladmin import Admin, ModelView
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+# 创建数据库引擎
+engine = create_engine("sqlite:///example.db")
+Base = declarative_base()
+
+# 定义模型
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50))
+    email = Column(String(100))
+
+Base.metadata.create_all(engine)
+
+# 创建 FastAPI 应用
+app = FastAPI()
+
+# 创建 Admin 实例
+admin = Admin(app, engine)
+
+# 定义 ModelView
+class UserAdmin(ModelView, model=User):
+    column_list = [User.id, User.name, User.email]
+    column_searchable_list = [User.name, User.email]
+    column_sortable_list = [User.id, User.name]
+
+    # 自定义显示名称
+    name = "用户"
+    name_plural = "用户管理"
+    icon = "fa-solid fa-user"
+
+# 注册到 admin
+admin.add_view(UserAdmin)
+```
+
+#### 3. 高级特性
+
+```python
+class UserAdmin(ModelView, model=User):
+    # 列表页显示的字段
+    column_list = [User.id, User.name, User.email]
+
+    # 可搜索的字段
+    column_searchable_list = [User.name, User.email]
+
+    # 可排序的字段
+    column_sortable_list = [User.id, User.name]
+
+    # 详情页显示的字段
+    column_details_list = [User.id, User.name, User.email]
+
+    # 表单中排除的字段
+    form_excluded_columns = [User.id]
+
+    # 每页显示数量
+    page_size = 50
+
+    # 自定义权限控制
+    async def is_accessible(self, request):
+        # 在这里添加权限验证逻辑
+        return True
+
+    # 自定义操作
+    async def on_model_change(self, data, model, is_created):
+        # 在模型保存前/后执行的逻辑
+        pass
+```
+
+访问 `http://localhost:8000/admin` 即可看到管理界面。
+
+---
+
+## authx
+
+### 一句话描述
+
+**AuthX** 是一个为 FastAPI 设计的即用型认证和授权库，提供 JWT、OAuth2、Session 等多种认证方式，开箱即用。
+
+### 基本使用
+
+#### 1. 安装
+
+```bash
+pip install authx
+```
+
+#### 2. JWT 认证示例
+
+```python
+from fastapi import FastAPI, Depends
+from authx import AuthX, AuthXConfig
+
+app = FastAPI()
+
+# 配置 AuthX
+config = AuthXConfig(
+    JWT_SECRET_KEY="your-secret-key",  # 生产环境使用环境变量
+    JWT_ALGORITHM="HS256",
+    JWT_ACCESS_TOKEN_EXPIRES=3600,  # 1小时
+    JWT_REFRESH_TOKEN_EXPIRES=2592000,  # 30天
+)
+
+security = AuthX(config=config)
+
+@app.post("/login")
+async def login(username: str, password: str):
+    # 验证用户名密码(这里简化处理)
+    if username == "admin" and password == "password":
+        # 创建访问令牌
+        access_token = security.create_access_token(uid=username)
+        refresh_token = security.create_refresh_token(uid=username)
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer"
+        }
+    return {"error": "Invalid credentials"}
+
+@app.get("/protected")
+async def protected_route(user=Depends(security.access_token_required)):
+    return {"message": f"Hello {user.uid}"}
+
+@app.post("/refresh")
+async def refresh(user=Depends(security.refresh_token_required)):
+    new_access_token = security.create_access_token(uid=user.uid)
+    return {"access_token": new_access_token}
+```
+
+#### 3. 权限控制
+
+```python
+from authx import AuthX, AuthXConfig
+from fastapi import Depends
+
+security = AuthX(config=config)
+
+# 基于角色的访问控制
+@app.get("/admin")
+async def admin_only(user=Depends(security.access_token_required)):
+    # 检查用户角色
+    if "admin" not in user.roles:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    return {"message": "Admin access granted"}
+
+# 使用装饰器方式
+@app.get("/premium")
+@security.access_token_required
+async def premium_content(user):
+    return {"content": "Premium content", "user": user.uid}
+```
+
+#### 4. 与数据库集成
+
+```python
+from sqlalchemy.orm import Session
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+@app.post("/register")
+async def register(username: str, password: str, db: Session = Depends(get_db)):
+    hashed_password = get_password_hash(password)
+    user = User(username=username, password=hashed_password)
+    db.add(user)
+    db.commit()
+    return {"message": "User created successfully"}
+
+@app.post("/login")
+async def login(username: str, password: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.username == username).first()
+    if not user or not verify_password(password, user.password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    access_token = security.create_access_token(
+        uid=user.id,
+        additional_claims={"username": user.username, "roles": user.roles}
+    )
+    return {"access_token": access_token}
+```
+
+---
+
+## scalar
+
+### 一句话描述
+
+**Scalar** 是一个现代化的 API 文档生成工具，为 OpenAPI/Swagger 规范提供美观、交互式的文档界面，比传统的 Swagger UI 更加优雅。
+
+### 基本使用
+
+#### 1. 安装
+
+```bash
+pip install scalar-fastapi
+```
+
+#### 2. 集成到 FastAPI
+
+```python
+from fastapi import FastAPI
+from scalar_fastapi import get_scalar_api_reference
+
+app = FastAPI(
+    title="My API",
+    description="API 文档示例",
+    version="1.0.0",
+)
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+
+@app.get("/users/{user_id}")
+async def get_user(user_id: int):
+    """
+    获取用户信息
+
+    - **user_id**: 用户ID
+    """
+    return {"user_id": user_id, "name": "John Doe"}
+
+# 添加 Scalar 文档路由
+@app.get("/docs", include_in_schema=False)
+async def scalar_html():
+    return get_scalar_api_reference(
+        openapi_url=app.openapi_url,
+        title=app.title,
+    )
+```
+
+#### 3. 自定义配置
+
+```python
+from scalar_fastapi import get_scalar_api_reference
+
+@app.get("/docs", include_in_schema=False)
+async def custom_scalar_docs():
+    return get_scalar_api_reference(
+        openapi_url=app.openapi_url,
+        title="My Custom API Docs",
+        scalar_config={
+            "theme": "purple",  # 主题颜色
+            "layout": "modern",  # 布局样式
+            "darkMode": True,   # 深色模式
+            "hideDownloadButton": False,  # 显示下载按钮
+            "searchHotKey": "k",  # 搜索快捷键
+        }
+    )
+```
+
+#### 4. 完整示例
+
+```python
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from scalar_fastapi import get_scalar_api_reference
+
+app = FastAPI(
+    title="用户管理 API",
+    description="一个简单的用户管理系统",
+    version="1.0.0",
+    contact={
+        "name": "API Support",
+        "email": "support@example.com",
+    },
+)
+
+class User(BaseModel):
+    id: int
+    name: str
+    email: str
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "id": 1,
+                "name": "张三",
+                "email": "zhangsan@example.com"
+            }
+        }
+
+@app.get("/users", response_model=list[User], tags=["用户"])
+async def list_users():
+    """获取所有用户列表"""
+    return [
+        {"id": 1, "name": "张三", "email": "zhangsan@example.com"},
+        {"id": 2, "name": "李四", "email": "lisi@example.com"},
+    ]
+
+@app.get("/users/{user_id}", response_model=User, tags=["用户"])
+async def get_user(user_id: int):
+    """根据ID获取用户信息"""
+    if user_id == 1:
+        return {"id": 1, "name": "张三", "email": "zhangsan@example.com"}
+    raise HTTPException(status_code=404, detail="用户不存在")
+
+@app.post("/users", response_model=User, tags=["用户"])
+async def create_user(user: User):
+    """创建新用户"""
+    return user
+
+# Scalar 文档
+@app.get("/docs", include_in_schema=False)
+async def scalar_docs():
+    return get_scalar_api_reference(
+        openapi_url=app.openapi_url,
+        title=app.title,
+    )
+```
+
+访问 `http://localhost:8000/docs` 即可看到 Scalar 生成的美观文档界面。
+
+---
+
+## 总结
+
+这三个工具各有特色：
+
+- **SQLAdmin**: 快速构建管理后台，适合内部管理系统
+- **AuthX**: 简化认证授权流程，开箱即用的安全方案
+- **Scalar**: 提供现代化的 API 文档体验，提升开发者体验
