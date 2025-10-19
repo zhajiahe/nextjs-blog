@@ -1,7 +1,7 @@
 'use client'
 
-import { useParams } from 'next/navigation'
-import { usePathname, useRouter } from '@/i18n/navigation'
+import { useParams, usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { locales, localeLabels, type Locale } from '@/i18n/config'
 
 const LocaleSwitch = () => {
@@ -11,7 +11,16 @@ const LocaleSwitch = () => {
   const currentLocale = (params?.locale as Locale) || 'zh'
 
   const handleLocaleChange = (newLocale: Locale) => {
-    router.replace(pathname, { locale: newLocale })
+    if (newLocale === currentLocale) return
+
+    // Remove the current locale from the pathname
+    // pathname is like "/zh/blog" or "/en/projects"
+    const pathWithoutLocale = pathname.replace(`/${currentLocale}`, '')
+
+    // Build the new path with the new locale
+    const newPath = `/${newLocale}${pathWithoutLocale || ''}`
+
+    router.push(newPath)
   }
 
   return (

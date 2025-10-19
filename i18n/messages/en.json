@@ -14,7 +14,10 @@
     "readMore": "Read more",
     "publishedOn": "Published on",
     "viewPostsTagged": "View posts tagged {tag}",
-    "readMoreAbout": "Read more: '{title}'"
+    "readMoreAbout": "Read more: '{title}'",
+    "projects": "Projects",
+    "tags": "Tags",
+    "noTagsFound": "No tags found."
   },
   "pagination": {
     "previous": "Previous",

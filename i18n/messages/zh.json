@@ -14,7 +14,10 @@
     "readMore": "阅读更多",
     "publishedOn": "发布于",
     "viewPostsTagged": "查看标签为 {tag} 的文章",
-    "readMoreAbout": "阅读更多: \"{title}\""
+    "readMoreAbout": "阅读更多: \"{title}\"",
+    "projects": "项目",
+    "tags": "标签",
+    "noTagsFound": "暂无标签"
   },
   "pagination": {
     "previous": "上一页",
